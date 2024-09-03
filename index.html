@@ -1,0 +1,121 @@
+<html>
+    <head>
+        <title>Http Request Loader</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    </head>
+    <body>
+        <script>
+            $(document).ready(function () {
+                var interval;
+                var globalSampleTestUrl = "";
+                var queue = [];
+                var globalElapsedTime;
+             
+                function getUrl() {
+                    return $.trim($("#txtURL").val());
+                }
+             
+                $("#btnRequests").on("click", function () {
+                     queue = [];
+                     $("#divTimeElapsed").html("<i>calculating</i>");                    
+                     globalElapsedTime = window.performance.now();
+                     $("#divRequestStatus").show();
+                     $("#btnLaunchRequests").prop("disabled", true);
+                     var totalRequests = 50;
+                     var inputValue = $("#txtRequestNumber").val();
+                     totalRequests = inputValue.trim();
+ 
+                     $("#divTotalNumberOfProcessed").html(totalRequests.toString());
+                     if (interval != null && interval != undefined) {
+                         clearInterval(interval);
+                     }
+                     interval = window.setInterval(function () {
+                         $("#divTotalRequests").text(queue.length);
+                     }, 500);
+ 
+                     for (let i = 1; i <= totalRequests; i++) {
+                         console.log("Loop No. " + i);
+                         if (i == totalRequests) {
+                             $.get(getUrl(), function (data) {
+                                 queue.push("1");
+                                 $("#btnLaunchRequests").prop("disabled", false);
+                                 $("#divTotalRequests").text(queue.length);
+                                 //clearInterval(interval);
+                             }).always(function () {
+                                 $("#btnLaunchRequests").prop("disabled", false);
+                                 globalElapsedTime = window.performance.now() - globalElapsedTime;
+                                 globalElapsedTime = Math.round((globalElapsedTime / 1000) * 100) / 100;                                                                
+                                 console.log("%cLast Result Processed in " + globalElapsedTime + " Seconds.", "color:green");
+                                 $("#divTimeElapsed").text(globalElapsedTime + " seconds");
+                             });
+                         }
+                         else {
+                             $.get(getUrl(), function (data) {
+                                 queue.push("1");
+                             });
+                         }
+                     }
+                 });
+            });
+        </script>
+
+        <div class="container">
+            <div class="row" style="padding-top:50px;">
+                <div class="col-sm-12">
+                    <h3>Http Request Loader</h3>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <form>
+                        <div class="form-group">
+                          <label for="txtURL">URL to test: </label>
+                          <input type="text" id="txtURL" value="http://site.azurewebsites.net/" style="width:100%" /> 
+                        </div>
+                        <div class="form-group">
+                          <label for="txtRequestNumber">Number of Requests:</label>
+                          <input type="number" value="30" id="txtRequestNumber" /> 
+                        </div>
+                        <input type="button" value="Send Requests" id="btnRequests" /> 
+                      </form>
+                </div>
+            </div>
+        
+            <div class="row" id="divRequestStatus" style="display:none">
+                <div class="col-sm-12">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>
+                                    Total Number of Requests
+                                </th>
+                                <th>
+                                    Total Number of Requests Processed
+                                </th>
+                                <th>
+                                    Total Time Elapsed
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div id="divTotalNumberOfProcessed"></div>
+                                </td>
+                                <td>
+                                    <div id="divTotalRequests" style="font-weight: bolder;"></div>
+                                </td>
+                                <td>
+                                    <div id="divTimeElapsed"></div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
