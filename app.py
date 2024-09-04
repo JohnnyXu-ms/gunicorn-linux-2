@@ -2,12 +2,13 @@ from flask import Flask, request, jsonify
 import os
 import time
 from flask_cors import CORS
+from werkzeug.contrib.profiler import ProfilerMiddleware
 
 app = Flask(__name__)
 cors = CORS(app)
 
 def dbCall():
-    time.sleep(1)
+    time.sleep(3)
     productsdb = [
         { 'id': 0, 'title': 'Apples', 'price': 1.20 },
         { 'id': 1, 'title': 'Bananas', 'price': 1.45 },
@@ -20,6 +21,8 @@ def dbCall():
 def home():
     products = dbCall()
     return jsonify(products)
+
+app = ProfilerMiddleware(app,profile_dir="profiles")
 
 if __name__ == '__main__':
     port= os.environ.get('PORT')
