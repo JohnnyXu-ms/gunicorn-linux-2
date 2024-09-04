@@ -37,7 +37,6 @@ def home():
     products = dbCall()
     return jsonify(products)
 
-app = ProfilerMiddleware(app,profile_dir="profiles")
 
 if __name__ == '__main__':
     port= os.environ.get('PORT')
