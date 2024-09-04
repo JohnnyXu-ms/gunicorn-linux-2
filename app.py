@@ -2,10 +2,25 @@ from flask import Flask, request, jsonify
 import os
 import time
 from flask_cors import CORS
-from werkzeug.contrib.profiler import ProfilerMiddleware
+from pyinstrument import Profiler
 
 app = Flask(__name__)
 cors = CORS(app)
+
+@app.before_request
+def before_request():
+    if "profile" in request.args:
+        g.profiler = Profiler()
+        g.profiler.start()
+
+
+@app.after_request
+def after_request(response):
+    if not hasattr(g, "profiler"):
+        return response
+    g.profiler.stop()
+    output_html = g.profiler.output_html()
+    return make_response(output_html)
 
 def dbCall():
     time.sleep(3)
